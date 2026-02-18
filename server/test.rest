@@ -1,14 +1,12 @@
 ### Dog API Test Collection
-
 @baseUrl = http://localhost:5050
 @contentType = application/json
 
-### Health Check
-GET {{baseUrl}}/api/health
-
-### Get Random Dog Image
+### TEST 1: Positive API Test - Get Random Dog
 GET {{baseUrl}}/api/dogs/random
+Content-Type: {{contentType}}
 
-### Get Random Dog Image (Alternative format)
-GET {{baseUrl}}/api/dogs/random
+
+### TEST 2: Negative API Test - Invalid Route
+GET {{baseUrl}}/api/dogs/invalid
 Content-Type: {{contentType}}

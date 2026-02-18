@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Image Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        #dogImage {
+            max-width: 100%;
+            max-height: 500px;
+            width: auto;
+            height: auto;
+            margin: 20px auto;
+            border-radius: 8px;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background-color: #f9f9f9;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:active {
+            background-color: #3d8b40;
+        }
+        #errorMessage {
+            color: #d32f2f;
+            margin-top: 20px;
+            font-weight: bold;
+            display: none;
+        }
+        #loadingMessage {
+            color: #1976d2;
+            margin-top: 20px;
+            font-style: italic;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dog Image Viewer</h1>
+        <img id="dogImage" src="" alt="Random dog image">
+        <br>
+        <button id="loadDogButton">Load Random Dog</button>
+        <div id="loadingMessage">Loading...</div>
+        <div id="errorMessage"></div>
+    </div>
+
+    <script>
+        const API_URL = '/api/dogs/random';
+        
+        // Wait for DOM to be ready
+        function initializeApp() {
+            const dogImage = document.getElementById('dogImage');
+            const loadDogButton = document.getElementById('loadDogButton');
+            const errorMessage = document.getElementById('errorMessage');
+            const loadingMessage = document.getElementById('loadingMessage');
+
+            async function loadDogImage() {
+                try {
+                    // Clear previous states
+                    if (errorMessage) {
+                        errorMessage.style.display = 'none';
+                        errorMessage.textContent = '';
+                    }
+                    if (loadingMessage) {
+                        loadingMessage.style.display = 'block';
+                    }
+
+                    const response = await fetch(API_URL);
+                    
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.success && data.data && data.data.imageUrl) {
+                        dogImage.src = data.data.imageUrl;
+                        dogImage.style.display = 'block';
+                        if (loadingMessage) {
+                            loadingMessage.style.display = 'none';
+                        }
+                    } else {
+                        throw new Error('Invalid response format');
+                    }
+                } catch (error) {
+                    if (loadingMessage) {
+                        loadingMessage.style.display = 'none';
+                    }
+                    dogImage.style.display = 'none';
+                    if (errorMessage) {
+                        errorMessage.textContent = `Error: Failed to load dog image. ${error instanceof Error ? error.message : ''}`;
+                        errorMessage.style.display = 'block';
+                    }
+                }
+            }
+
+            // Load dog image on page load
+            loadDogImage();
+
+            // Load dog image when button is clicked
+            if (loadDogButton) {
+                loadDogButton.addEventListener('click', () => {
+                    loadDogImage();
+                });
+            }
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+</body>
+</html>
